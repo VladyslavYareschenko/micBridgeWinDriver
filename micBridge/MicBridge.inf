@@ -1,0 +1,113 @@
+;
+; MicBridge.inf
+;
+
+[Version]
+Signature="$WINDOWS NT$"
+Class = Media
+ClassGuid = {4d36e96c-e325-11ce-bfc1-08002be10318}
+Provider=%OrganizationName% ; defined later in Strings section
+CatalogFile=MicBridge.cat
+DriverVer= ; set DriverVer in stampinf property pages
+DriverPackageDisplayName=%DriverDisplayName%
+
+[DestinationDirs]
+DefaultDestDir = 12 ; DIRID_DRIVERS
+MicBridge_Device_CoInstaller_CopyFiles = 11
+
+; ================= Class section =====================
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+MicBridge.sys  = 1,,
+
+;*****************************************
+; Install Section
+;*****************************************
+
+[Manufacturer]
+%OrganizationName%=Standard,NT$ARCH$
+
+[Standard.NT$ARCH$]
+%MicBridge.DeviceDesc%=MicBridge_Device, Root\MicBridge
+
+[MicBridge_Device.NT]
+Include=ks.inf,wdmaudio.inf
+Needs=KS.Registration, WDMAUDIO.Registration
+CopyFiles=Drivers_Dir
+
+[Drivers_Dir]
+MicBridge.sys
+
+;-------------- Service installation
+[MicBridge_Device.NT.Services]
+AddService = MicBridge,%SPSVCINST_ASSOCSERVICE%, MicBridge_Service_Inst
+
+; -------------- MicBridge driver install sections
+[MicBridge_Service_Inst]
+DisplayName    = %MicBridge.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 2               ; SERVICE_DEMAND_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\MicBridge.sys
+
+
+; ------------- Capture device
+[MicBridge.Interface.WaveCaptureTemplate]
+AddReg=MicBridge.Interface.WaveCaptureTemplate.AddReg
+
+[MicBridge.Interface.WaveCaptureTemplate.AddReg]
+HKR,,CLSID,,%KSProxy.CLSID%
+HKR,,FriendlyName,,%MicBridge.WaveCapture.FriendlyName%
+
+[MicBridge.Interface.TopologyCaptureTemplate]
+AddReg=MicBridge.Interface.TopologyCaptureTemplate.AddReg
+
+[MicBridge.Interface.TopologyCaptureTemplate.AddReg]
+HKR,,CLSID,,%KSProxy.CLSID%
+HKR,,FriendlyName,,%MicBridge.TopologyCapture.FriendlyName%
+; The following lines opt-in to pull mode.
+HKR,EP\0,%PKEY_AudioEndpoint_Association%,,%KSNODETYPE_ANY%
+HKR,EP\0,%PKEY_AudioEndpoint_Supports_EventDriven_Mode%,0x00010001,0x1
+
+[MicBridge_Device.NT.Interfaces]
+; -------------- Interface template definition
+; Capture
+AddInterface=%KSCATEGORY_AUDIO%,    %KSNAME_WaveCapture%, MicBridge.Interface.WaveCaptureTemplate
+AddInterface=%KSCATEGORY_REALTIME%, %KSNAME_WaveCapture%, MicBridge.Interface.WaveCaptureTemplate
+AddInterface=%KSCATEGORY_CAPTURE%,  %KSNAME_WaveCapture%, MicBridge.Interface.WaveCaptureTemplate
+AddInterface=%KSCATEGORY_AUDIO%,    %KSNAME_TopologyCapture%, MicBridge.Interface.TopologyCaptureTemplate
+AddInterface=%KSCATEGORY_TOPOLOGY%, %KSNAME_TopologyCapture%, MicBridge.Interface.TopologyCaptureTemplate
+
+[MicBridge_Device.NT.Wdf]
+KmdfService =  MicBridge, MicBridge_wdfsect
+[MicBridge_wdfsect]
+KmdfLibraryVersion = $KMDFVERSION$
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+OrganizationName="YVV"
+DriverDisplayName="MicBridge Drivers"
+DiskName="MicBridge Installation Disk"
+MicBridge.DeviceDesc="MicBridge Virtual Device"
+MicBridge.SVCDESC="MicBridge Service"
+
+MicBridge.WaveCapture.FriendlyName="MicBridge Wave Input"
+MicBridge.TopologyCapture.FriendlyName="MicBridge Topology Input"
+
+;non-localizable
+KSNAME_WaveCapture="WaveCaptureTemplate"
+KSNAME_TopologyCapture="TopologyCaptureTemplate"
+
+KSNODETYPE_ANY   = "{00000000-0000-0000-0000-000000000000}"
+
+KSProxy.CLSID="17CCA71B-ECD7-11D0-B908-00A0C9223196"
+KSCATEGORY_AUDIO="{6994AD04-93EF-11D0-A3CC-00A0C9223196}"
+KSCATEGORY_CAPTURE="{65E8773D-8F56-11D0-A3B9-00A0C9223196}"
+KSCATEGORY_REALTIME ="{EB115FFC-10C8-4964-831D-6DCB02E6F23F}"
+KSCATEGORY_TOPOLOGY = "{DDA54A40-1E4C-11D1-A050-405705C10000}"
+
+PKEY_AudioEndpoint_Association               = "{1DA5D803-D492-4EDD-8C23-E0C0FFEE7F0E},2"
+PKEY_AudioEndpoint_Supports_EventDriven_Mode = "{1DA5D803-D492-4EDD-8C23-E0C0FFEE7F0E},7"
