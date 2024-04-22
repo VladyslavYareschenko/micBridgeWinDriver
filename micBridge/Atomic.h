@@ -1202,4 +1202,7 @@ namespace kmdf_std
         flag->clear();
     }
 
+    // TODO: atomic_ref, atomic_floating, Ty& specializations for atomic_pointer and
+    // atomic_integral
+
 }  // namespace ktl
