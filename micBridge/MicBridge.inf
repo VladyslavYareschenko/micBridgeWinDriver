@@ -8,7 +8,7 @@ Class = Media
 ClassGuid = {4d36e96c-e325-11ce-bfc1-08002be10318}
 Provider=%OrganizationName% ; defined later in Strings section
 CatalogFile=MicBridge.cat
-DriverVer= ; set DriverVer in stampinf property pages
+DriverVer = ;
 DriverPackageDisplayName=%DriverDisplayName%
 
 [DestinationDirs]
@@ -28,9 +28,12 @@ MicBridge.sys  = 1,,
 ;*****************************************
 
 [Manufacturer]
-%OrganizationName%=Standard,NT$ARCH$
+%OrganizationName%=Standard,NTamd64,NTx86
 
-[Standard.NT$ARCH$]
+[Standard.NTamd64]
+%MicBridge.DeviceDesc%=MicBridge_Device, Root\MicBridge
+
+[Standard.NTx86]
 %MicBridge.DeviceDesc%=MicBridge_Device, Root\MicBridge
 
 [MicBridge_Device.NT]
@@ -111,3 +114,4 @@ KSCATEGORY_TOPOLOGY = "{DDA54A40-1E4C-11D1-A050-405705C10000}"
 
 PKEY_AudioEndpoint_Association               = "{1DA5D803-D492-4EDD-8C23-E0C0FFEE7F0E},2"
 PKEY_AudioEndpoint_Supports_EventDriven_Mode = "{1DA5D803-D492-4EDD-8C23-E0C0FFEE7F0E},7"
+
